@@ -1,37 +1,38 @@
 import random
 
-class DungeonGenerator:
+class MazeGenerator:
 	def __init__(self, rows, columns): 
 		self.rows = rows
 		self.columns = columns
-		self.level = [[True for x in range(rows)] for y in range(columns)]
+		self.level = [[True for x in range(columns )] for y in range(rows )]
 		self.seekerVisited = []
-		self.generalVisisted = []
+		self.generalVisited = []
 		wanderer = ( rows - 1, random.randint(0,columns - 1))
 		seeker = ( 0, random.randint(0 , columns - 1))
 		self.Manhattan = lambda pointA, pointB: abs( pointA[0] - pointB[0]) + abs( pointA[1] - pointB[1])
+		
 		self.generateSkeleton( wanderer, seeker)
 		self.level[wanderer[0]][wanderer[1]] = 'S'
 		self.level[seeker[0]][seeker[1]] = 'G'
 
 	def generateSkeleton(self,  wanderer, seeker):
 		
-		while seeker not in self.generalVisisted:
-
+		while seeker not in self.generalVisited:
 			self.level[ seeker[0] ][ seeker[1] ] = False
 			self.level[ wanderer[0] ][ wanderer[1] ] = False
 			self.seekerVisited.append( seeker )
-			self.generalVisisted.append( wanderer )
+			self.generalVisited.append( wanderer )
 
 			seeker = self.getSeekerNextMove( seeker, wanderer )
 			wanderer = self.getWandererNextMove( wanderer )
+
 
 
 	def getSeekerNextMove(self, seeker, wanderer ):
 		moves = self.getMoves( seeker, [self.seekerVisited] + [self.generalVisited])
 		validMoves = []
 		originalDistance = self.Manhattan( seeker, wanderer)
-		validMoves = list(filter(lambda x: self.Manhattan(x,wanderer) < originalDistance, moves))
+		validMoves = list(filter(lambda point: self.Manhattan(point,wanderer) < originalDistance, moves))
 
 		if len( validMoves ) == 0:
 			if seeker in self.generalVisited:
@@ -47,14 +48,11 @@ class DungeonGenerator:
 
 		return nextMove
 
-	def Manhattan( pointA , pointB ):
-		return 
-
-	def getWandererNextMove( self, generalVisited, wanderer ):
-		moves = self.getMoves( wanderer, generalVisited )
+	def getWandererNextMove( self, wanderer ):
+		moves = self.getMoves( wanderer, self.generalVisited )
 		nextMove = None
 		if len( moves ) == 0:
-			nextMove = generalVisited[ random.randint(0, len(generalVisited) - 1)]
+			nextMove = self.generalVisited[ random.randint(0, len(self.generalVisited) - 1)]
 		else:
 			nextMove = moves[random.randint(0, len(moves) - 1)]
 
@@ -67,10 +65,11 @@ class DungeonGenerator:
 										   0 <= point[1] < self.columns and 
 							 			   point not in visited and 
 										   self.level[point[0]][point[1]],
-					options ))
+							 options )
+					)
 
-	def printMaze( self ):
+	def printDungeon( self ):
 		print("  " + "__" * self.columns)
 		for row in self.level:
-			print("|" + " ".join(['▣' if x == True else ' ' if x == False else x for x in row]) + "|")
+			print("|" + " ".join(['▣' if x == True else ' ' if x == False else x for x in row]) + " |")
 		print("͞ ͞" * self.columns * 2)

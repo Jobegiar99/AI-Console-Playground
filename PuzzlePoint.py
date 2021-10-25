@@ -4,7 +4,7 @@ from typing import *
 
 class PuzzlePoint:
 
-	def __init__(self,board,row,column,h, g):
+	def __init__(self,board,row,column,h, g, targetBoard = None, targetPositions = None):
 		self.board = board
 		self.row = row
 		self.column = column
@@ -12,21 +12,54 @@ class PuzzlePoint:
 		self.g = g
 		self.f = h * g
 		self.previous = None
+		if targetBoard:
+			self.targetPositions = {}
+			primeNumbers = [1,3,5,7,9,11,13,17,19]
+			primeIndex = 0
 
-	def printSolution( self ):
+			for r in range(len(targetBoard)):
+				for c in range(len(targetBoard[0])):
+					if targetBoard[r][c] != "":
+						self.targetPositions[targetBoard[r][c]] = (r,c,primeNumbers[primeIndex])
+						primeIndex += 1
+		else:
+			self.targetPositions = targetPositions
+
+	def printSolution( self, clear = True ):
+		
 		while self:
-			system('clear')
+			if clear:
+				system('clear')
 			self.printHelper( self.board )
 			
-			sleep(0.2)
+			sleep(0.4)
 			self = self.previous
 
 	def printHelper( self, board ):
+		info = {}
+		info[1] =[" d88    ","  88    ","  88    ","  88    ","  88    "," d88P   "]
+	
+		info[2] = ["d8888b. ","    `88 ",".aaadP' ","88'     ","88.     ","Y88888P "]
+
+		info[3] =  ["d8888b. ","    `88 "," aaad8' ","    `88 ","    .88 ","d88888P "]
+
+		info[4] = ["dP   dP ","88   88 ","88aaa88 ","     88 ","     88 ","     dP "]
+
+		info[5] =  ["888888P ","88'     ","88baaa. ","    `88 ","     88 ","d88888P "]
+
+		info[6] =  [".d8888P ","88'     ","88baaa. ","88` `88 ","8b. .d8 ","`Y888P' "]
+
+		info[7] = ["d88888P ","    d8' ","   d8'  ","  d8'   "," d8'    ","d8'     "]
+		
+		info[8] = [".d888b. ","Y8' `8P ","d8bad8b ","88` `88 ","8b. .88 ","Y88888P "]
+
+		info[""] = ["        ","        ","        ","        ","        ","        "]
+
 		for row in board:
-			elemA = row[0] if row[0] != "" else " "
-			elemB = row[1] if row[1] != "" else " "
-			elemC = row[2] if row[2] != "" else " "
-			print("|", elemA ,"|", elemB ,"|", elemC ) 
+			for index in range(len(info[row[0]])):
+				print("|",info[row[0]][index],"|",info[row[1]][index],"|",info[row[2]][index],"|")
+			print("-----------"*3 + '-')
+		
 
 	def getMoves(self, openList, closedList):
 		"""
@@ -65,7 +98,7 @@ class PuzzlePoint:
 				return
 			
 			elif not self.checkIfPointInList(closedList, board_copy):
-				move = PuzzlePoint(board_copy,targetRow, targetColumn,heuristic, self.g + 1)
+				move = PuzzlePoint(board_copy,targetRow, targetColumn,heuristic, self.g + 1, targetBoard = None, targetPositions = self.targetPositions)
 				move.previous = self
 				openList.append(move)
 
@@ -84,17 +117,7 @@ class PuzzlePoint:
 		
 		Calculates the heuristic of the given board.
 
-		"""
-		targetPositions = {
-			1: (0,0,1),
-			2: (0,1,3),
-			3: (0,2,5),
-			4: (1,0,7),
-			5: (1,2,9),
-			6: (2,0,11),
-			7: (2,1,13),
-			8: (2,2,17)
-		}
+		"""		
 		manhattanDistance = lambda x1,y1,x2,y2: abs( x1 - x2) + abs(y1 - y2)
 		heuristic = 0
 		badPlacedPieces = 1
@@ -102,7 +125,7 @@ class PuzzlePoint:
 			for column in range(3):
 				if board[row][column] == '':
 					continue
-				x2,y2,factor = targetPositions[board[row][column]]
+				x2,y2,factor = self.targetPositions[board[row][column]]
 				manhattanResult = manhattanDistance( row, column, x2, y2  )
 				if manhattanResult > 0:
 					heuristic += (manhattanResult * factor)

@@ -1,7 +1,7 @@
 from typing import *
 
 class AStar:
-	def __init__(self, point: "DataTypeForPoint" , maxIterations: int) ->None:
+	def __init__(self, point: "DataTypeForPoint" , maxIterations: int = float('inf')) ->None:
 		"""
 		
 			AStar traverse. Works on any kind of Point given by the user.
@@ -29,7 +29,6 @@ class AStar:
 			currentPoint = openList.pop(openList.index(min(openList, key = lambda x: x.f)))
 			
 			if currentPoint.f == 0:
-				print("Solution found after",iteration,"iterations")
 				input("Press enter to check the solution")
 				self.reverseMoves( currentPoint ) 
 				return
@@ -38,7 +37,7 @@ class AStar:
 
 			closedList.append( currentPoint )
 
-		print( "NO SOLUTION FOUND" )
+		print( "NO SOLUTION FOUND" if maxIterations > 0 else "MAX ITERATIONS REACHED BEFORE FINDING A SOLUTION" )
 
 	def reverseMoves(self, AStarResult ):
 		pointerA = None
