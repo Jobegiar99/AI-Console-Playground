@@ -1,8 +1,14 @@
+#https://patorjk.com/software/taag/#p=display&f=Nancyj-Underlined&t=8%20Puzzle
+# font = Nancyj-Underlined
+
 import random
-from AStar import AStar
-from PuzzlePoint import PuzzlePoint
-from MazeGenerator import MazeGenerator
-from os import system, name
+from AStar.AStar8Puzzle import AStar8Puzzle
+from AStar import AStarMaze
+from AStar.PuzzlePoint import PuzzlePoint
+from AStar.MazeGenerator import MazeGenerator
+from AStar.DungeonPoint import DungeonPoint
+from os import system
+import random
 
 
 def __main__():
@@ -77,6 +83,9 @@ oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 	
 	elif menuOption == '2':
 		ShortestPathToExitMaze()
+	
+	elif menuOption == "-1":
+		__main__()
 
 	else:
 		invalidOption(  AStarMenu  )
@@ -95,16 +104,18 @@ ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"""
 	print("Menu")
 	print("1 --> random initial board and random target board")
 	print("2 --> input the initial and target board")
+	print("-1 --> return to A* menu")
 	option = input()
 	if option == '1':
 		EightPuzzleSolverRandomHelper()
 
-	if option == '2':
-		return
-		
+	elif option == '2':
+		EightPuzzleSolverCustomHelper()
 	
-	
-	
+	elif option == '-1':
+		AStarMenu()
+	else:
+		invalidOption(EightPuzzleSolver)	
 
 def EightPuzzleSolverRandomHelper():
 	initialBoard = [[0,0,0],[0,0,0],[0,0,0]]
@@ -130,7 +141,56 @@ def EightPuzzleSolverRandomHelper():
 	end.printSolution( clear = False)
 	maxIterations = int(input("Type the maximum amount of iterations to attemp before stopping the search.\n I recommend 1000 as the minimum amount of iterations\n"))
 	print("Please wait, it may take some time")
-	AStar(start, maxIterations)
+	AStar8Puzzle(start, maxIterations)
+	EightPuzzleSolver()
+
+
+def EightPuzzleSolverCustomHelper():
+	print("You will decide what the initial state and goal state are. Remember that this each board is a 3 x 3 matrix.")
+	option = 'no'
+	while option == 'no':
+		print("Type the initial  state. Mark the empty cell with an underscore character ( _ )")
+		initialState,emptyRow, emptyCol =EightPuzzleInputHelper()
+		print("Type the goal  state. Mark the empty cell with an underscore character ( _ )")
+		goalState, _ , _ = EightPuzzleInputHelper()
+		start = PuzzlePoint( initialState, emptyRow, emptyCol,  float('inf'), 1, goalState)
+		end = PuzzlePoint( goalState, emptyRow, emptyCol,  float('inf'), 1, goalState)
+		print("INITIAL BOARD")
+		start.printSolution( clear = False)
+		print("\n\nTARGET BOARD")
+		end.printSolution( clear = False)
+		print("Do you want to proceed, or would you like to retype the initial and end state?")
+		print(" yes --> continue")
+		print(" no --> type the initial and goal state again")
+		option = input()
+	maxIterations = int(input("Type the maximum amount of iterations to attemp before stopping the search.\n I recommend 1000 as the minimum amount of iterations\n"))
+	print("Please wait, it may take some time")
+	AStar8Puzzle(start, maxIterations)
+	EightPuzzleSolver()
+
+	
+
+def EightPuzzleInputHelper():
+	print("Type the first row")
+	rowA = input().split(' ')
+	print("Type the second row")
+	rowB = input().split(' ')
+	print("Type the third row")
+	rowC = input().split(' ')
+	board = []
+
+	EightPuzzleInputHelperHelper(board,rowA)
+	EightPuzzleInputHelperHelper(board,rowB)
+	EightPuzzleInputHelperHelper(board,rowC)
+	for row in range(3):
+		for col in range(3):
+			if board[row][col] == "":
+				return board, row, col
+	return board, None,None
+
+def EightPuzzleInputHelperHelper(board, row):
+	board.append([int(elem) if elem != "_" else "" for elem in row] )
+
 
 def ShortestPathToExitMaze():
 	system("clear")
@@ -144,12 +204,86 @@ a88aaaa8P' .d8888b. 88d888b. .d888b88 .d8888b. 88d8b.d8b.    88   88   88 .d8888
 ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 	"""
 	print(welcomeMessage)
-	print("Type the amount of rows and then the amount of columns that you want the maze to have. I recommend the minimum number to be 10")
 	print("LEVEL INFORMATION")
 	print("S --> start point")
 	print("G --> goal point")
 	print("  --> walkable space")
-	print("▣ --> obstacle")
+	print("x --> obstacle")
+	print("Menu")
+	print("1 --> Random dungeon of a fixed size")
+	print("2 --> Random maze (you can decide the amount of rows and columns that it will have)")
+	print("-1 --> return")
+	option = input()
+
+	if option == '1':
+		randomDungeon()
+	elif option == '2':
+		randomMaze()
+	elif option == '-1':
+		AStarMenu()
+	else:
+		invalidOption( ShortestPathToExitMaze)
+
+
+def randomDungeon():
+	rows = 20
+	columns = 40
+	level  = [   [  '1' for col in range( columns * 2) ] for row in range(rows * 2) ]
+	
+	option = "no"
+	while option == "no":
+		system("clear")
+		#Bottom Left Matrix
+		seekerDownLeft = (0, random.randint(0, columns - 1))
+		wandererDownLeft = ( rows - 1 , random.randint(0, columns - 1))
+
+		#Top Left Matrix
+		wandererTopLeft = (rows - 1, seekerDownLeft[1])
+		seekerTopLeft = (random.randint(0, rows - 1), columns - 1)
+
+		#Top Right Matrix
+		wandererTopRight = ( seekerTopLeft[0], 0)
+		seekerTopRight =  ( rows - 1, random.randint(0, columns - 1))
+
+		#Bottom Right Matrix
+		wandererDownRight = ( 0, seekerTopRight[1])
+		seekerDownRight = ( rows - 1 , random.randint(0, columns - 1 ))
+
+
+		upLeft = MazeGenerator(rows,columns, wanderer = wandererTopLeft, seeker = seekerTopLeft, showStart = False, showEnd = False)
+		upRight = MazeGenerator(rows,columns, wanderer= wandererTopRight, seeker = seekerTopRight, showStart = False, showEnd = False)
+		downLeft = MazeGenerator(rows,columns, wanderer = wandererDownLeft, seeker = seekerDownLeft, showStart = True, showEnd = False)
+		downRight = MazeGenerator(rows,columns, wanderer = wandererDownRight, seeker = seekerDownRight, showStart = False, showEnd = True)
+
+		for currentRow in range( rows ):
+			for currentCol in range( columns ):
+				level[currentRow][currentCol] = upLeft.level[ currentRow ][ currentCol ]
+				level[ currentRow][currentCol + columns ] = upRight.level[ currentRow ][currentCol ]
+				level[ currentRow + rows ][ currentCol ] = downLeft.level[ currentRow ][ currentCol ]
+				level[ currentRow + rows ] [ currentCol + columns ] = downRight.level [ currentRow ][ currentCol ]
+
+		print("  " + "__" * columns * 2)
+		for levelRow in level:
+			print("|" + " ".join(['x' if x == True else ' ' if x == False else x for x in levelRow]) + " |")
+		print("͞ ͞" * columns * 4)
+
+		
+		
+		print("If you like this dungeon type \"yes\" if not type \"no\" to generate a new dungeon")
+		option = input()
+	print("Do you want to visualize how A* searches the best path?")
+	print(" 1 --> yes")
+	print(" 2 --> no")
+	option = input()
+	visualizeSearch = option == '1'
+	point = DungeonPoint( (rows * 2 ) - 1, wandererDownLeft[1],0,0)
+	AStarMaze(point, level, ((rows * 2) - 1, seekerDownRight[1] + columns), visualizeSearch )
+	ShortestPathToExitMaze()
+
+def randomMaze():
+	print("Type the amount of rows followed by the amount of columns that you want the maze to have. Separat the values with a space. I recommend the minimum number to be 10")
+
+
 	levelSize = input().split(" ")
 	rows = int(levelSize[0])
 	columns = int(levelSize[1])
@@ -160,7 +294,15 @@ oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 		
 		print("If you like this maze type \"yes\" if not type \"no\" to generate a new dungeon")
 		option = input()
-	
+	print("Do you want to visualize how A* searches the best path?")
+	print(" 1 --> yes")
+	print(" 2 --> no")
+	option = input()
+	visualizeSearch = option == '1'
+	point = DungeonPoint( maze.wanderer[0], maze.seeker[1], 0,0 )
+	AStarMaze( point, maze.level, maze.seeker, visualizeSearch)
+
+	ShortestPathToExitMaze()
 
 	
 	

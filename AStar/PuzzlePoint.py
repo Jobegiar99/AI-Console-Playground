@@ -25,7 +25,7 @@ class PuzzlePoint:
 		else:
 			self.targetPositions = targetPositions
 
-	def printSolution( self, clear = True ):
+	def printSolution( self, clear = True , level = None):
 		
 		while self:
 			if clear:
@@ -34,6 +34,7 @@ class PuzzlePoint:
 			
 			sleep(0.4)
 			self = self.previous
+		input("Press enter to continue")
 
 	def printHelper( self, board ):
 		info = {}

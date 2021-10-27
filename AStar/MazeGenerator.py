@@ -1,19 +1,22 @@
 import random
 
 class MazeGenerator:
-	def __init__(self, rows, columns): 
+	def __init__(self, rows, columns, wanderer = None, seeker = None, showStart = True, showEnd = True): 
 		self.rows = rows
 		self.columns = columns
 		self.level = [[True for x in range(columns )] for y in range(rows )]
 		self.seekerVisited = []
 		self.generalVisited = []
-		wanderer = ( rows - 1, random.randint(0,columns - 1))
-		seeker = ( 0, random.randint(0 , columns - 1))
+		self.wanderer = ( rows - 1, random.randint(0,columns - 1)) if wanderer == None else wanderer
+		self.seeker = ( 0, random.randint(0 , columns - 1)) if seeker == None else seeker
 		self.Manhattan = lambda pointA, pointB: abs( pointA[0] - pointB[0]) + abs( pointA[1] - pointB[1])
 		
-		self.generateSkeleton( wanderer, seeker)
-		self.level[wanderer[0]][wanderer[1]] = 'S'
-		self.level[seeker[0]][seeker[1]] = 'G'
+		self.generateSkeleton( self.wanderer, self.seeker)
+		if showStart:
+			self.level[self.wanderer[0]][self.wanderer[1]] = 'S'
+		
+		if showEnd:
+			self.level[self.seeker[0]][self.seeker[1]] = 'G'
 
 	def generateSkeleton(self,  wanderer, seeker):
 		
@@ -71,5 +74,5 @@ class MazeGenerator:
 	def printDungeon( self ):
 		print("  " + "__" * self.columns)
 		for row in self.level:
-			print("|" + " ".join(['▣' if x == True else ' ' if x == False else x for x in row]) + " |")
+			print("|" + " ".join(['#' if x == True else ' ' if x == False else x if x in ['G','S'] else '.' for x in row]) + " |")
 		print("͞ ͞" * self.columns * 2)
