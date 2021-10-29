@@ -8,6 +8,14 @@
         "index": 1060
       }
     ],
+    "ConstraintSatisfaction/Sudoku/Sudoku.py": [
+      {
+        "id": "5f467736-7131-4b62-a3f2-171caf332004",
+        "line": 87,
+        "version": 7081,
+        "index": 1932
+      }
+    ],
     "DungeonGenerator.py": [
       {
         "id": "a73976b2-3275-4ee6-b2bb-31137ffe59a4",
@@ -33,15 +41,15 @@
     "main.py": [
       {
         "id": "a73e4925-6a50-4bb2-bb2d-d6d7c2f2da75",
-        "line": 315,
-        "version": 19672,
-        "index": 13841
+        "line": 316,
+        "version": 19721,
+        "index": 13853
       },
       {
         "id": "b10961c1-ba2d-418e-aa4b-d2b30c67f268",
-        "line": 315,
-        "version": 19672,
-        "index": 13841
+        "line": 316,
+        "version": 19721,
+        "index": 13853
       }
     ]
   }
